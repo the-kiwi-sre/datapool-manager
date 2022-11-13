@@ -1,33 +1,19 @@
 {
   "name": "datapool-manager",
-  "version": "0.0.1",
-  "description": "A tool agnostic performance test datapool manager.",
-  "main": "index.js",
+  "version": "1.0.0",
+  "description": "Load test datapool manager",
+  "main": "server-core.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"start": "node server-core.js --config .\\config.json"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the-kiwi-sre/datapool-manager.git"
+    "url": "https://bitbucket.ldstat01.net/scm/pft/datapool-manager.git"
   },
-  "keywords": [
-    "performance",
-    "testing",
-    "performance",
-    "testing",
-    "load",
-    "testing",
-    "load",
-    "datapool",
-    "data",
-    "test",
-    "test",
-    "data"
-  ],
   "author": "Stephen Townshend",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/the-kiwi-sre/datapool-manager/issues"
-  },
-  "homepage": "https://github.com/the-kiwi-sre/datapool-manager#readme"
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

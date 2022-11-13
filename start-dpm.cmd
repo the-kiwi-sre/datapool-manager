@@ -1,0 +1,1 @@
+node server-core.js --config .\config.json
