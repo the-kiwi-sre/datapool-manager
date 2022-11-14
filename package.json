@@ -5,11 +5,11 @@
   "main": "server-core.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-	"start": "node server-core.js --config .\\config.json"
+	"start": "node server-core.js --config ./config.json"
   },
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.ldstat01.net/scm/pft/datapool-manager.git"
+    "url": "https://github.com/the-kiwi-sre/datapool-manager.git"
   },
   "author": "Stephen Townshend",
   "license": "ISC",
