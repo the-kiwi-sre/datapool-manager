@@ -32,6 +32,8 @@ Then to run DPM:
 npm start
 ```
 
+To check whether it is running open a browser and navigate to http://localhost:9192/DPM/STATUS (provided you kept the default port of 9192).
+
 *TODO: Write how to add test data to the raw-csv folder.* 
 
 ## Docker
