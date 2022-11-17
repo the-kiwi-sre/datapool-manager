@@ -1,0 +1,8 @@
+{
+	"port": 9190,
+	"csv_path": "./raw-csv",
+	"files_to_preload":
+	[
+		"testdata.csv"
+	]
+}
