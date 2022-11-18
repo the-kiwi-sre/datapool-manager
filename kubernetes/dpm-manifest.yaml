@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: datapool-manager
+  name: datapool-manager-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datapool-manager
+  template:
+    metadata:
+      labels:
+        app: datapool-manager
+    spec:
+      containers:
+        - name: datapool-manager-container
+          image: thekiwisre/datapool-manager
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9192
+              name: http-dpm
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: datapool-manager-service
+spec:
+  ports:
+    - port: 9192
+      protocol: TCP
+      targetPort: http-dpm
+  selector:
+    app: datapool-manager
+  sessionAffinity: None
+  type: LoadBalancer
