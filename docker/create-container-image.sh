@@ -14,7 +14,7 @@ cd datapool-manager
 npm install
 
 # Build the Docker image
-docker build --network host --rm -t thekiwisre/datapool-manager .
+docker buildx build --push --platform=linux/amd64 -t thekiwisre/datapool-manager .
 
 # Head back out to the parent folder
 cd ..

@@ -1,38 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+  namespace: default
+  labels:
+    app: my-demoapp
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-demoapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9192
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: my-deployment
+  namespace: default
   labels:
-    app: datapool-manager
-  name: datapool-manager-deploy
+    app: my-demoapp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: datapool-manager
+      app: my-demoapp
   template:
     metadata:
       labels:
-        app: datapool-manager
+        app: my-demoapp
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
       containers:
-        - name: datapool-manager-container
-          image: thekiwisre/datapool-manager
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 9192
-              name: http-dpm
-              protocol: TCP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: datapool-manager-service
-spec:
-  ports:
-    - port: 9192
-      protocol: TCP
-      targetPort: http-dpm
-  selector:
-    app: datapool-manager
-  sessionAffinity: None
-  type: LoadBalancer
+      - name: nginx
+        image: thekiwisre/datapool-manager:latest
+        ports:
+        - containerPort: 9192
