@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-service
+  name: datapool-manager-service
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
-  namespace: default
+  namespace: dpm
   labels:
-    app: my-demoapp
+    app: datapool-manager
 spec:
   type: LoadBalancer
   selector:
-    app: my-demoapp
+    app: datapool-manager
   ports:
     - protocol: TCP
       port: 80
@@ -19,19 +19,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-deployment
-  namespace: default
+  name: datapool-manager-deploy
+  namespace: dpm
   labels:
-    app: my-demoapp
+    app: datapool-manager
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: my-demoapp
+      app: datapool-manager
   template:
     metadata:
       labels:
-        app: my-demoapp
+        app: datapool-manager
     spec:
       affinity:
         nodeAffinity:
@@ -44,7 +44,7 @@ spec:
                 - amd64
                 - arm64
       containers:
-      - name: nginx
+      - name: datapool-manager-container
         image: thekiwisre/datapool-manager:latest
         ports:
         - containerPort: 9192
