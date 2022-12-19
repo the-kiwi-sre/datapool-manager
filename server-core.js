@@ -16,7 +16,7 @@ const register = new Prometheus.Registry();
 register.setDefaultLabels({
     app: 'datapool-manager'
 })
-Prometheus.collectDefaultMetrics({register})
+//Prometheus.collectDefaultMetrics({register})
 
 // Custom metric to track the number of HTTP requests made to the Datapool Manager
 const http_request_counter = new Prometheus.Counter({
