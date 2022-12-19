@@ -7,6 +7,33 @@ const url = require('url') // Import url module
 const memory_manager = require('./memory-manager.js');
 const fs = require('fs');
 
+// Dependencies for Prometheus instrumentation
+const Prometheus = require('prom-client');
+const { response } = require('express');
+//const collectDefaultMetrics = Prometheus.collectDefaultMetrics();
+const register = new Prometheus.Registry();
+
+register.setDefaultLabels({
+    app: 'datapool-manager'
+})
+Prometheus.collectDefaultMetrics({register})
+
+// Custom metric to track the number of HTTP requests made to the Datapool Manager
+const http_request_counter = new Prometheus.Counter({
+    name: 'dpm_http_request_count',
+    help: 'Count of HTTP requests made to the Datapool Manager',
+    labelNames: ['method', 'route', 'statusCode'],
+  });
+register.registerMetric(http_request_counter);
+
+// Custom metric so track the response time to requests made to the Datapool Manager
+const http_request_duration_seconds = new Prometheus.Histogram({
+    name: 'dpm_http_request_duration_seconds',
+    help: 'Duration of HTTP requests in seconds. Only for some routes.',
+    labelNames: ['method', 'route', 'code'],
+  })
+register.registerMetric(http_request_duration_seconds);
+
 
 // CONFIG WE NEED
 /* 
@@ -80,7 +107,14 @@ const router = express.Router();
 // We use it for debugging/logging 
 router.use(function(req, res, next)
 {
-    //console.log("Filer handler " + file_handler.CopyInstanceCSV());
+    // Start a timer for every request made
+    res.locals.startEpoch = Date.now();
+
+    // Increment the HTTP request counter for the total number of requests made
+    http_request_counter.labels({method: req.method, route: '_total', statusCode: res.statusCode}).inc();
+ 
+    // Increment the HTTP request counter for the specific path/route that was requested
+    http_request_counter.labels({method: req.method, route: req.originalUrl, statusCode: res.statusCode}).inc();
 
     //console.log('Something is happening.');
     next();
@@ -135,6 +169,14 @@ router.get('/dpm/RELOAD', function(req, res)
             {
                 console.log("INFO: Loaded " + rows + " lines from " + filename + " into memory.");
             }
+
+            // Capture response time for this route
+            const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+            responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+            http_request_duration_seconds
+                .labels(req.method, req.route.path, res.statusCode)
+                .observe(responseTimeInSec)
         });
     }); 
     
@@ -167,6 +209,15 @@ router.get('/dpm/SAVE', function(req, res)
         {
             res.status(200).json({ file_saved: filename }); 
         }
+
+        // Capture response time for this route
+        const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+        responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+        http_request_duration_seconds
+            .labels(req.method, req.route.path, res.statusCode)
+            .observe(responseTimeInSec)
+
         });
 });
 
@@ -213,6 +264,14 @@ router.post('/dpm/ADD', function(req, res)
                 res.status(200).json({ line_added: line }); 
             }
             });
+
+            // Capture response time for this route
+            const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+            responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+            http_request_duration_seconds
+                .labels(req.method, req.route.path, res.statusCode)
+                .observe(responseTimeInSec)
     }
 
     if (add_mode == "LAST")
@@ -229,6 +288,14 @@ router.post('/dpm/ADD', function(req, res)
                 res.status(200).json({ line_added: line }); 
             }
             });
+
+            // Capture response time for this route
+            const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+            responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+            http_request_duration_seconds
+                .labels(req.method, req.route.path, res.statusCode)
+                .observe(responseTimeInSec)
     }    
 });
 
@@ -284,6 +351,14 @@ router.get('/dpm/READ', function(req, res)
     if (!(read_mode == "FIRST" || read_mode == "RANDOM"))
     {
         res.status(500).json({ message: 'ERROR: Read mode has to be FIRST or RANDOM.' });   
+
+        // Capture response time for this route
+        const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+        responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+        http_request_duration_seconds
+            .labels(req.method, req.route.path, res.statusCode)
+            .observe(responseTimeInSec)
     }
 
 
@@ -303,6 +378,14 @@ router.get('/dpm/READ', function(req, res)
                 res.status(200).json({ record: record }); 
             }
             });
+
+            // Capture response time for this route
+            const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+            responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+            http_request_duration_seconds
+                .labels(req.method, req.route.path, res.statusCode)
+                .observe(responseTimeInSec)
     }
     
     // If the READ_MODE is FIRST...
@@ -321,6 +404,14 @@ router.get('/dpm/READ', function(req, res)
                 res.status(200).json({ record: record }); 
             }
             });
+
+            // Capture response time for this route
+            const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+            responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+            http_request_duration_seconds
+                .labels(req.method, req.route.path, res.statusCode)
+                .observe(responseTimeInSec)
     }
 
 });
@@ -333,17 +424,27 @@ router.get('/dpm/READ', function(req, res)
 router.get('/dpm/STATUS', function(req, res) 
 {
     memory_manager.Status((err,message)=>{
-                
-    if(err)
-    {
-        console.log(err);
-        res.status(500).json({ message: message }); 
-    }
-    else
-    {
-        res.status(200).json({ message: message }); 
-    }
+
+        if(err)
+        {
+            console.log(err);
+            res.status(500).json({ message: message }); 
+        }
+        else
+        {
+            res.status(200).json({ message: message }); 
+        }
+
+        // Capture response time for this route
+        const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+        responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+        http_request_duration_seconds
+            .labels(req.method, req.route.path, res.statusCode)
+            .observe(responseTimeInSec)
     });
+
+
 });
 
 
@@ -353,6 +454,9 @@ router.get('/dpm/STATUS', function(req, res)
 /****************************/
 router.get('/dpm/INITFILE', function(req, res) 
 {
+    // Prometheus custom metric for count of HTTP requests
+    http_request_counter.labels({route: '/dpm/INITFILE', statusCode: res.statusCode}).inc();
+
     // Extract the query string parameters
     let qsp = url.parse(req.url, true).query;
 
@@ -365,6 +469,7 @@ router.get('/dpm/INITFILE', function(req, res)
     console.log("INFO: About to retrieve record " + req.query.FILENAME);
 
     memory_manager.Load(req.query.FILENAME, csv_path, (err,message,filename,rows)=>{
+
         if(err)
         {
             console.log(err);
@@ -375,7 +480,41 @@ router.get('/dpm/INITFILE', function(req, res)
             console.log("INFO: Loaded " + rows + " lines from " + filename + " into memory.");
             res.status(200).json({ filename: filename, recorded_loaded: rows }); 
         }
+
+        // Capture response time for this route
+        const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+        responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+        http_request_duration_seconds
+            .labels(req.method, req.route.path, res.statusCode)
+            .observe(responseTimeInSec)
     });
+
+
+});
+
+
+
+/****************************/
+/* METRICS ENDPOINT              
+/****************************/
+router.get('/metrics', function(req, res)
+{
+    // This code is for testing delays / timings
+    //var waitTill = new Date(new Date().getTime() + 1 * 1000);
+    //while(waitTill > new Date()){}
+
+    res.setHeader('Content-Type',register.contentType)
+
+    register.metrics().then(data => res.status(200).send(data))
+
+    // Capture response time for this route
+    const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+    responseTimeInSec = responseTimeInMilliseconds / 1000;
+
+    http_request_duration_seconds
+        .labels(req.method, req.route.path, res.statusCode)
+        .observe(responseTimeInSec)
 });
 
 
