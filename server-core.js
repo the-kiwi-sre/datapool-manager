@@ -27,12 +27,13 @@ const http_request_counter = new Prometheus.Counter({
 register.registerMetric(http_request_counter);
 
 // Custom metric so track the response time to requests made to the Datapool Manager
-const http_request_duration_seconds = new Prometheus.Histogram({
-    name: 'dpm_http_request_duration_seconds',
-    help: 'Duration of HTTP requests in seconds. Only for some routes.',
+const http_request_duration_milliseconds = new Prometheus.Histogram({
+    name: 'http_request_duration_milliseconds',
+    help: 'Duration of HTTP requests in milliseconds.',
     labelNames: ['method', 'route', 'code'],
+    buckets: [1,2,3,4,5,10,25,50,100,250,500,1000],
   })
-register.registerMetric(http_request_duration_seconds);
+register.registerMetric(http_request_duration_milliseconds);
 
 
 // CONFIG WE NEED
@@ -172,11 +173,10 @@ router.get('/dpm/RELOAD', function(req, res)
 
             // Capture response time for this route
             const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-            responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-            http_request_duration_seconds
+            http_request_duration_milliseconds
                 .labels(req.method, req.route.path, res.statusCode)
-                .observe(responseTimeInSec)
+                .observe(responseTimeInMilliseconds)
         });
     }); 
     
@@ -212,11 +212,10 @@ router.get('/dpm/SAVE', function(req, res)
 
         // Capture response time for this route
         const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-        responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-        http_request_duration_seconds
+        http_request_duration_milliseconds
             .labels(req.method, req.route.path, res.statusCode)
-            .observe(responseTimeInSec)
+            .observe(responseTimeInMilliseconds)
 
         });
 });
@@ -267,11 +266,10 @@ router.post('/dpm/ADD', function(req, res)
 
             // Capture response time for this route
             const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-            responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-            http_request_duration_seconds
+            http_request_duration_milliseconds
                 .labels(req.method, req.route.path, res.statusCode)
-                .observe(responseTimeInSec)
+                .observe(responseTimeInMilliseconds)
     }
 
     if (add_mode == "LAST")
@@ -291,11 +289,10 @@ router.post('/dpm/ADD', function(req, res)
 
             // Capture response time for this route
             const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-            responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-            http_request_duration_seconds
+            http_request_duration_milliseconds
                 .labels(req.method, req.route.path, res.statusCode)
-                .observe(responseTimeInSec)
+                .observe(responseTimeInMilliseconds)
     }    
 });
 
@@ -354,12 +351,11 @@ router.get('/dpm/READ', function(req, res)
 
         // Capture response time for this route
         const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-        responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-        http_request_duration_seconds
+        http_request_duration_milliseconds
             .labels(req.method, req.route.path, res.statusCode)
-            .observe(responseTimeInSec)
-    }
+            .observe(responseTimeInMilliseconds)
+}
 
 
     // If the READ_MODE is RANDOM...
@@ -381,11 +377,10 @@ router.get('/dpm/READ', function(req, res)
 
             // Capture response time for this route
             const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-            responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-            http_request_duration_seconds
+            http_request_duration_milliseconds
                 .labels(req.method, req.route.path, res.statusCode)
-                .observe(responseTimeInSec)
+                .observe(responseTimeInMilliseconds)
     }
     
     // If the READ_MODE is FIRST...
@@ -407,11 +402,10 @@ router.get('/dpm/READ', function(req, res)
 
             // Capture response time for this route
             const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-            responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-            http_request_duration_seconds
+            http_request_duration_milliseconds
                 .labels(req.method, req.route.path, res.statusCode)
-                .observe(responseTimeInSec)
+                .observe(responseTimeInMilliseconds)
     }
 
 });
@@ -437,11 +431,10 @@ router.get('/dpm/STATUS', function(req, res)
 
         // Capture response time for this route
         const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-        responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-        http_request_duration_seconds
+        http_request_duration_milliseconds
             .labels(req.method, req.route.path, res.statusCode)
-            .observe(responseTimeInSec)
+            .observe(responseTimeInMilliseconds)
     });
 
 
@@ -483,11 +476,10 @@ router.get('/dpm/INITFILE', function(req, res)
 
         // Capture response time for this route
         const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-        responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-        http_request_duration_seconds
+        http_request_duration_milliseconds
             .labels(req.method, req.route.path, res.statusCode)
-            .observe(responseTimeInSec)
+            .observe(responseTimeInMilliseconds)
     });
 
 
@@ -510,11 +502,10 @@ router.get('/metrics', function(req, res)
 
     // Capture response time for this route
     const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
-    responseTimeInSec = responseTimeInMilliseconds / 1000;
 
-    http_request_duration_seconds
+    http_request_duration_milliseconds
         .labels(req.method, req.route.path, res.statusCode)
-        .observe(responseTimeInSec)
+        .observe(responseTimeInMilliseconds)
 });
 
 
