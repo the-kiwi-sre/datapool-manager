@@ -18,8 +18,17 @@ helm upgrade -i prometheus prometheus-community/kube-prometheus-stack --namespac
 # Deploy a service to expose Prometheus to the internet
 kubectl apply -f kubernetes/prometheus-lb.yaml
 
+# Deploy our custom Prometheus instance that scrapes our app /metrics endpoint
+kubectl apply -f kubernetes/prometheus.yaml
+
+# Wait 10 seconds for the services to create
+sleep 10
+
 # Output URLs to use in the browser
-print "****************************************"
-kubectl get services -n dpm | perl -lne 'print "DATAPOOL MANAGER: http://${1}/DPM/STATUS" if /(\S+\.com)/'
-kubectl get services -n prometheus | perl -lne 'print "PROMETHEUS: http://${1}" if /(\S+\.com)/'
-print "****************************************"
+echo "****************************************"
+kubectl get services -n dpm | perl -lne 'print "DATAPOOL MANAGER: http://${1}/DPM/STATUS" if /datapool-manager-service\s+\S+\s+\S+\s+(\S+\.com)/'
+
+kubectl get services -n prometheus | perl -lne 'print "CLUSTER PROMETHEUS: http://${1}" if /prometheus-external-service\s+\S+\s+\S+\s+(\S+\.com)/'
+
+kubectl get services -n dpm | perl -lne 'print "CUSTOM PROMETHEUS: http://${1}" if /prometheus-service\s+\S+\s+\S+\s+(\S+\.com)/'
+echo "****************************************"
