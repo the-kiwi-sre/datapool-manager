@@ -41,3 +41,26 @@ To check whether it is running open a browser and navigate to http://localhost:9
 ## Kubernetes
 
 # Usage
+The Datapool Manager can be used from any load testing tool because all it requires is making HTTP requests to retrieve, add, modify, or remove test data records.
+
+The basic process is:
+- Create the datapools you want
+- Modify your load test scripts to call the Datapool Manager and create variables using the response (using Correlation)
+
+# API reference
+The DPM has several APIs that you can call. This is a reference of each one and the arguments you can supply.
+
+## STATUS
+Calling /dpm/STATUS returns a list of all the currently loaded datapools (CSV files) along with how many records exist for each. It's a good way to check that DPM is running, as well as to verify that there is sufficient test data for your testing needs.
+
+Usage:
+```
+GET http://hostname:port/dpm/STATUS
+```
+
+Example response:
+```
+{"message":{"newdata.csv":3,"testdata.csv":3}}
+```
+
+In this response we can see there are two datapools. ***newdata.csv*** with three records and ***testdata.csv*** with three records.
