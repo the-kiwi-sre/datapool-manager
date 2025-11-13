@@ -63,4 +63,19 @@ Example response:
 {"message":{"newdata.csv":3,"testdata.csv":3}}
 ```
 
-In this response we can see there are two datapools. ***newdata.csv*** with three records and ***testdata.csv*** with three records.
+In this response we can see there are two datapools: **newdata.csv** with three records and **testdata.csv** with three records.
+
+## READ
+The READ operation reads a row of data from a particular datapool. This allows reading sequentially, randomly, and you can optionally choose to delete the record after reading it (consumable data).
+
+Example usage:
+```
+http://hostname:port/DPM/READ?FILENAME=newdata.csv&READ_MODE=RANDOM&KEEP=true
+```
+Query string parameters:
+|Paramater|Required?|Description|
+|-|-|-|
+|FILENAME|Yes|Name of the file (datapool) to read from.|
+|READ_MODE|No|Can be FIRST to read sequentially from top to bottom or RANDOM to pick a random record. FIRST by default.|
+|KEEP|No|Keep the record after reading it? TRUE keeps the record and FALSE deletes it after reading.|
+
