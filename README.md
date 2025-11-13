@@ -78,3 +78,8 @@ Query string parameters:
 |FILENAME|Yes|Name of the file (datapool) to read from.|
 |READ_MODE|No|Can be FIRST to read sequentially from top to bottom or RANDOM to pick a random record. Set to FIRST by default.|
 |KEEP|No|Keep the record after reading it? TRUE keeps the record and FALSE deletes it after reading. Set to TRUE by default.|
+
+Example response:
+```json
+{"record":"row2"}
+```
