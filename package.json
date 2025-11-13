@@ -5,7 +5,7 @@
   "main": "server-core.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --require ./instrumentation.js server-core.js --config ./config.json"
+    "start": "node server-core.js --config ./config.json"
   },
   "repository": {
     "type": "git",
@@ -14,12 +14,6 @@
   "author": "Stephen Townshend",
   "license": "ISC",
   "dependencies": {
-    "@opentelemetry/api": "^1.4.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.39.2",
-    "@opentelemetry/exporter-metrics-otlp-proto": "^0.43.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "^0.43.0",
-    "@opentelemetry/sdk-metrics": "^1.17.0",
-    "@opentelemetry/sdk-node": "^0.43.0",
     "express": "^4.17.1",
     "prom-client": "^14.1.0"
   }
