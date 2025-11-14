@@ -59,7 +59,7 @@ GET http://hostname:port/dpm/STATUS
 ```
 
 Example response:
-```
+```json
 {"message":{"newdata.csv":3,"testdata.csv":3}}
 ```
 

@@ -148,6 +148,52 @@ router.get('/', function(req, res)
 
 
 /****************************/
+/* POST CREATE             
+/****************************/
+// Creates a new datapool in memory (and on disk?)
+router.post('/dpm/CREATE', function(req, res)
+{
+    // The user must specify the 'filename' of a CSV file to create - if not throw a server error
+    if (!req.body.FILENAME)
+    {
+        res.status(500).json({ message: 'ERROR: You must specify the "filename" parameter of the datapool to add to!' });   
+    }
+
+    let filename = req.body.FILENAME;
+    let line = req.body.LINE;
+
+    // If no LINE (initial first row) is created then default to a blank line
+    if (!line)
+    {
+        console.log("No initial first line provided.");
+        line = "";
+    }
+
+    // Create the datapool!
+    memory_manager.Create(filename,line,csv_path,(err,line)=>{
+        
+        if(err)
+        {
+            console.log(err);
+            res.status(500).json({ message: err }); 
+        }
+        else
+        {
+            res.status(200).json({ line_added: line }); 
+        }
+    });
+
+    // Capture response time for this route
+    const responseTimeInMilliseconds = Date.now() - res.locals.startEpoch;
+
+    http_request_duration_milliseconds
+        .labels(req.method, req.route.path, res.statusCode)
+        .observe(responseTimeInMilliseconds)
+});
+
+
+
+/****************************/
 /* GET RELOAD             
 /****************************/
 // Reloads all the files from disk
@@ -224,6 +270,7 @@ router.get('/dpm/SAVE', function(req, res)
 /****************************/
 /* POST ADD             
 /****************************/
+// TODO: If the file doesn't exist, create it
 router.post('/dpm/ADD', function(req, res)
 {
     // The user must specify the 'filename' of a CSV file to create an instance from - if not throw a server error

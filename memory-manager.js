@@ -26,6 +26,54 @@ exports.ClearAll = function(callback)
 
 
 /**
+   Adds a new CSV file to memory and to disk - to create new datapools on the fly
+ */
+exports.Create = function(filename, line, csv_path, callback)
+{
+    // Write the code
+    console.log("Inside the memory_manager Create function and here is the line: " + line + " and the csv_path: " + csv_path);
+
+    // Create a blank file ready for use
+    csv_path = AddPathSeparator(csv_path);
+
+    const fs = require('fs');
+
+    var stream = fs.createWriteStream(csv_path + filename, {flags:'wx'});
+
+
+    stream.on('open', () => {
+    console.log('File created successfully.');
+    });
+
+    stream.on('error', (err) => {
+    if (err.code === 'EEXIST') {
+        console.error(`File already exists: ${csv_path + filename}`);
+        // Optionally: process.exit(1) or just return
+    } else {
+        console.error(`Error: ${err.message}`);
+    }
+    });
+
+    // Now need to read this into memory or create the memory structure
+    exports.Load(filename, csv_path, (err,message,filename,rows)=>{
+        if(err)
+        {
+            console.log("Test data file " + filename + "does not exist!");
+            console.log(err);
+            callback(err, "Created + " + filename);            
+        }
+        else
+        {
+            console.log("INFO: Loaded " + rows + " lines from " + filename + " into memory.");
+            callback(null, "Created + " + filename);
+        }
+
+    });
+
+    
+}
+
+/**
    Loads a new CSV file into memory. 
 */
 exports.Load = function(filename, csv_path, callback)
