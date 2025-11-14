@@ -54,7 +54,7 @@ Calling /dpm/STATUS returns a list of all the currently loaded datapools (CSV fi
 
 Usage:
 ```
-GET http://hostname:port/dpm/STATUS
+GET http://localhost:9192/dpm/STATUS
 ```
 
 Example response:
@@ -82,16 +82,55 @@ The READ operation reads a row of data from a particular datapool. This allows r
 
 Example usage:
 ```
-GET http://hostname:port/DPM/READ?FILENAME=newdata.csv&READ_MODE=RANDOM&KEEP=true
+GET http://localhost:9192/DPM/READ?FILENAME=newdata.csv&READ_MODE=RANDOM&KEEP=true
 ```
 Query string parameters:
 |Paramater|Required?|Description|
 |-|-|-|
 |FILENAME|Yes|Name of the file (datapool) to read from.|
 |READ_MODE|No|Can be FIRST to read sequentially from top to bottom or RANDOM to pick a random record. Set to FIRST by default.|
-|KEEP|No|Keep the record after reading it? TRUE keeps the record and FALSE deletes it after reading. Set to TRUE by default.|
+|KEEP|No|Keep the record after reading it? TRUE keeps the record and FALSE deletes it after reading. Set to TRUE by default. **CASE SENSITIVE** (you must use uppercase TRUE or FALSE orherwise it will default to TRUE)|
 
 Example response:
 ```json
 {"record":"row2"}
+```
+
+## CREATE
+The CREATE operation creates a new datapool file (CSV) on disk and loads it into memory. If the file already exists, nothing happens. This provides a way to dynamically create datapools on the fly.
+
+Example usage:
+```
+POST http://localhost:9192/DPM/CREATE
+
+FILENAME=created_file.csv
+```
+
+Example response:
+```json
+{"line_added":"Created + created-file.csv"}
+```
+
+## ADD
+Adds a row of data to an existing datapool.
+
+Example usage:
+```
+POST http://localhost:9192/DPM/ADD
+
+ADD_MODE=LAST
+FILENAME=create_file.csv
+LINE=a,row,of,data
+```
+
+Form post parameters:
+|Paramater|Required?|Description|
+|-|-|-|
+|FILENAME|Yes|Name of the file (datapool) to write to.|
+|ADD_MODE|No|Can be FIRST to add a row of data at the top of the file or LAST to add it after the last row. Default is LAST. Case sensitive (must be uppercase)|
+|LINE|Yes|The row of data to write|
+
+Example response:
+```json
+{"line_added":"a,row,of,data"}
 ```
