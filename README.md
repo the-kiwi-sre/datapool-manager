@@ -1,5 +1,5 @@
 # What is the Datapool Manager?
-The datapool manager is a tool-agnostic utility for handling test data for load testing. It was based off the functionality provided by JMeter's Simple Table Server plugin, but built as a standalone program. This means you can have your test data hosted and running 24/7 and utilised by different load testing tools.
+The datapool manager is a tool-agnostic way of handling test data for load testing. It was based off the functionality provided by JMeter's Simple Table Server plugin, but built as a standalone program. This means you can have your test data hosted and running 24/7 and utilised by different load testing tools.
 
 ## Key functionality
 The Datapool Manager (DPM) provides:
@@ -34,11 +34,11 @@ npm start
 
 To check whether it is running open a browser and navigate to http://localhost:9192/DPM/STATUS (provided you kept the default port of 9192).
 
-*TODO: Write how to add test data to the raw-csv folder.* 
-
 ## Docker
+The project contains a Dockerfile and scripts for creating a container image for DPM. No documentation is currently provided for this feature, but it may prove useful if you want to implement this yourself.
 
 ## Kubernetes
+The project contains scripts and configuration for deploying a containerised version of DPM onto Kubernetes. No documentation is currently provided, but it may prove useful if you want to implement this yourself.
 
 # Usage
 The basic process is:
@@ -119,7 +119,7 @@ Example usage:
 POST http://localhost:9192/DPM/ADD
 
 ADD_MODE=LAST
-FILENAME=create_file.csv
+FILENAME=created_file.csv
 LINE=a,row,of,data
 ```
 
@@ -133,4 +133,17 @@ Form post parameters:
 Example response:
 ```json
 {"line_added":"a,row,of,data"}
+```
+
+## SAVE
+Write the current status of a datapool in memory back to the CSV file on disk.
+
+Example usage:
+```
+GET http://localhost:9192/DPM/SAVE
+```
+
+Example response:
+```json
+{"file_saved":"newdata.csv"}
 ```
