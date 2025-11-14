@@ -41,11 +41,10 @@ To check whether it is running open a browser and navigate to http://localhost:9
 ## Kubernetes
 
 # Usage
-The Datapool Manager can be used from any load testing tool because all it requires is making HTTP requests to retrieve, add, modify, or remove test data records.
-
 The basic process is:
-- Create the datapools you want
-- Modify your load test scripts to call the Datapool Manager and create variables using the response (using Correlation)
+- Source or create the datapools you want in CSV format and put them in the /raw-csv folder of this project.
+- Start the DPM with **npm start**
+- You can now call the APIs below from your load testing tool to retrieve, modify, or add test data
 
 # API reference
 The DPM has several APIs that you can call. This is a reference of each one and the arguments you can supply.
@@ -65,12 +64,25 @@ Example response:
 
 In this response we can see there are two datapools: **newdata.csv** with three records and **testdata.csv** with three records.
 
+## RELOAD
+Loads all of the CSV files in your /raw-csv folder into memory. Overwrites any changes you have made to datapools in memory which have not yet been saved back to disk. Returns a UTC timestamp for when the reload was completed.
+
+Example usage:
+```
+GET http://localhost:9192/DPM/RELOAD
+```
+
+Example response:
+```json
+{"reloaded_time":1763079773553}
+```
+
 ## READ
 The READ operation reads a row of data from a particular datapool. This allows reading sequentially, randomly, and you can optionally choose to delete the record after reading it (consumable data).
 
 Example usage:
 ```
-http://hostname:port/DPM/READ?FILENAME=newdata.csv&READ_MODE=RANDOM&KEEP=true
+GET http://hostname:port/DPM/READ?FILENAME=newdata.csv&READ_MODE=RANDOM&KEEP=true
 ```
 Query string parameters:
 |Paramater|Required?|Description|
