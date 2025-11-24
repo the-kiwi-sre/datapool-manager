@@ -72,8 +72,10 @@ else
     console.log("ERROR: You need to supply a config file (JSON)");
 }
 
-// Pre-load any files in the config file
-configuration.files_to_preload.forEach(function(filename)
+// Go through the files in raw-csv, add the titles to an array
+let files_to_preload = fs.readdirSync(configuration.csv_path);
+// Preload all the files into memory
+files_to_preload.forEach(function(filename)
 {
     memory_manager.Load(filename, configuration.csv_path, (err,message,filename,rows)=>{
         if(err)
@@ -204,7 +206,9 @@ router.get('/dpm/RELOAD', function(req, res)
         console.log(message);        
     });
 
-    configuration.files_to_preload.forEach(function(filename)
+    // Check and reload all the files in the CSV path
+    let files_to_preload = fs.readdirSync(configuration.csv_path); 
+    files_to_preload.forEach(function(filename)
     {
         memory_manager.Load(filename, configuration.csv_path, (err,message,filename,rows)=>{
             if(err)
